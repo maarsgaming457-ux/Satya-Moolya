@@ -45,6 +45,10 @@ backend/generated/
 *.pdf
 *.json
 
+# Keep frontend package files
+!frontend/package.json
+!frontend/package-lock.json
+
 # ========================
 # Frontend (Next.js / Node)
 # ========================
