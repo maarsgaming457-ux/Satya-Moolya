@@ -23,3 +23,5 @@ steps:
       - '--region=${_DEPLOY_REGION}'
       - '--platform=${_PLATFORM}'
       - '--allow-unauthenticated'
+    options:
+      logging: CLOUD_LOGGING_ONLY
