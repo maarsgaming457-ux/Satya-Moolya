@@ -94,7 +94,7 @@ export const useLiveInspection = (deviceId: string) => {
             console.log("File: useLiveInspection.ts");
             console.log("Line: disconnect callback");
             console.log("Reason: Component unmounted or explicitly disconnected");
-            try { throw new Error("Call stack trace"); } catch(e) { console.log(e.stack); }
+            try { throw new Error("Call stack trace"); } catch(e) { console.log((e as Error).stack); }
             wsRef.current.close();
             wsRef.current = null;
         }

@@ -119,7 +119,7 @@ export default function LiveInspectionPage() {
         if (currentFrameId < 100) {
             (window as any).frameLogs.push({ event: 'toBlob_start', frameId: currentFrameId, time: performance.now() });
         }
-        tempCanvas.toBlob(async (blob) => {
+        tempCanvas.toBlob(async (blob: Blob | null) => {
           if (currentFrameId < 100) {
               (window as any).frameLogs.push({ event: 'toBlob_callback', frameId: currentFrameId, time: performance.now(), size: blob?.size });
               if (blob) {
