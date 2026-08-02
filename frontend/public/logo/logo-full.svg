@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 140">
+  <g transform="translate(90, 10) scale(0.7)">
+    <path d="M60,25 C35,25 20,40 40,55 C65,70 60,95 40,95 C25,95 15,85 15,85 C15,85 25,105 45,105 C70,105 85,75 55,60 C35,50 30,35 50,35 C60,35 70,45 70,45 C70,45 65,25 60,25 Z" fill="#000000" />
+    <path d="M45,95 L45,30 L75,60 L105,30 L105,95 L90,95 L90,55 L75,70 L60,55 L60,95 Z" fill="#000000" />
+  </g>
+  <text x="150" y="105" font-family="sans-serif" font-weight="900" font-size="34" text-anchor="middle" letter-spacing="-1" fill="#000000">Satya Moolya</text>
+  <line x1="50" y1="125" x2="90" y2="125" stroke="#000000" stroke-width="1.5" />
+  <text x="150" y="128" font-family="sans-serif" font-weight="600" font-size="10" text-anchor="middle" letter-spacing="3" fill="#000000">KNOW THE TRUE VALUE</text>
+  <line x1="210" y1="125" x2="250" y2="125" stroke="#000000" stroke-width="1.5" />
+</svg>

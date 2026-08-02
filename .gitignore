@@ -1,0 +1,169 @@
+# ========================
+# OS & IDE Files
+# ========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================
+# Backend (Python / FastAPI)
+# ========================
+backend/.venv/
+backend/venv/
+backend/env/
+__pycache__/
+*.py[cod]
+*$py.class
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.coverage
+backend/htmlcov/
+
+# Local Database
+backend/*.db
+backend/*.sqlite3
+
+# Models & AI Weights (Too large for Git)
+backend/models/
+*.pt
+*.safetensors
+*.bin
+
+# HuggingFace & Torch Caches
+.cache/
+huggingface/
+.triton/
+
+# Generated Output / Logs
+*.log
+backend/logs/
+backend/reports/
+backend/generated/
+*.pdf
+*.json
+
+# ========================
+# Frontend (Next.js / Node)
+# ========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/.vercel/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# ========================
+# Secrets & Environment Variables
+# ========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Frontend local environment
+frontend/.env.local
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Test / debug files
+test*.js
+test*.html
+puppeteer_trace.js
+eslint.log
+lint-results*.txt
+
+# Python cache
+**/__pycache__/
+
+
+
+# AI datasets
+backend/data/
+backend/tests/validation/
+backend/test_images/
+
+# Videos
+*.mp4
+
+# Images used only for testing
+backend/*.jpg
+backend/*.jpeg
+backend/*.png
+
+# Debug
+backend/debug*
+backend/trace*
+backend/verification*
+backend/runtime*
+backend/final_e2e_test.py
+backend/stress_test.py
+backend/test_*.py
+backend/verify_*.py
+backend/scratch/
+
+
+
+
+# -----------------------------
+# Training & Datasets
+# -----------------------------
+backend/models/
+backend/data/
+backend/tests/validation/
+
+# -----------------------------
+# Debug / Benchmark
+# -----------------------------
+backend/benchmark/
+backend/debug*
+backend/trace*
+backend/runtime*
+backend/verify*
+backend/final_e2e_test.py
+backend/stress_test.py
+
+# -----------------------------
+# Temporary Images
+# -----------------------------
+backend/blurry_*.jpg
+backend/valid_*.jpg
+backend/sample_phone.jpg
+backend/test_image.jpg
+backend/test_blurry.jpg
+backend/debug_*.jpg
+backend/e2e_error.png
+backend/wizard_step1.png
+backend/*.html
+
+
+# Development / Debug
+backend/adaptive_blur_test*.py
+backend/debug*.py
+backend/debug*.jpg
+backend/blurry_*.jpg
+backend/valid_*.jpg
+backend/test_*.py
+backend/test_*.jpg
+backend/runtime_*.py
+backend/trace_*.py
+backend/verify_*.py
+backend/run_*verification.py
+backend/final_e2e_test.py
+backend/stress_test.py
+
+# Reports
+backend/*report*.md
+
+# Temporary downloads
+backend/download_*.py
+
+# Temporary investigation scripts
+backend/investigate_*.py
