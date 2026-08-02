@@ -32,19 +32,24 @@ class VisionService:
         self.florence_processor = None
         self.dino_device = "cpu"
         self.comp_detector = None
-        
-        try:
-            from app.services.component_detection_service import GroundingDinoComponentDetector
-            self.comp_detector = GroundingDinoComponentDetector()
-        except Exception as e:
-            logger.error(f"Failed to load GroundingDinoComponentDetector: {e}")
+        self._grounding_dino_loaded = False
+        self._yolo_loaded = False
+        self._comp_detector_loaded = False
+
+    def _load_grounding_dino(self):
+        if self._grounding_dino_loaded:
+            return
 
         try:
             self.florence_processor, self.florence_model, self.dino_device = get_grounding_dino()
             logger.info("VisionService Grounding DINO initialized on %s", self.dino_device)
-        except Exception as e:
-            logger.error(f"Failed to load Grounding DINO: {e}")
-                
+            self._grounding_dino_loaded = True
+        except Exception:
+            logger.exception("Failed to load Grounding DINO")
+
+    def _load_yolo(self):
+        if self._yolo_loaded:
+            return
         if os.path.exists(self.custom_weights_path):
             try:
                 from ultralytics import YOLO
@@ -54,6 +59,17 @@ class VisionService:
                 logger.error(f"Failed to load custom YOLO model: {e}")
         else:
             logger.info("Custom damage YOLO weights not found; using Grounding DINO for damage prompts.")
+        self._yolo_loaded = True
+
+    def _load_component_detector(self):
+        if self._comp_detector_loaded:
+            return
+        try:
+            from app.services.component_detection_service import GroundingDinoComponentDetector
+            self.comp_detector = GroundingDinoComponentDetector()
+        except Exception as e:
+            logger.error(f"Failed to load GroundingDinoComponentDetector: {e}")
+        self._comp_detector_loaded = True
 
     async def download_image_with_hash(self, url: str) -> tuple[np.ndarray, str]:
         async with httpx.AsyncClient() as client:
@@ -113,6 +129,7 @@ class VisionService:
         text_input = "smartphone. mobile phone. cell phone. phone. device."
         print(f"Grounding DINO prompt: {text_input}")
         
+        self._load_grounding_dino()
         if self.florence_model and self.florence_processor:
             try:
                 pil_image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
@@ -165,6 +182,7 @@ class VisionService:
     def detect_components(self, image: np.ndarray, phone_bbox: list = None) -> list:
         """Detects phone components (Screen, Frame, Camera, etc)."""
         components = []
+        self._load_grounding_dino()
         if self.florence_model:
             try:
                 if phone_bbox:
@@ -207,6 +225,7 @@ class VisionService:
     def detect_damage(self, image: np.ndarray) -> list:
         """Detects damages (Scratch, Crack, Dent, etc)."""
         detections = []
+        self._load_yolo()
         if self.yolo_model:
             results = self.yolo_model(image, verbose=False)
             for r in results:
@@ -223,32 +242,34 @@ class VisionService:
                         "bounding_box": [int(x1), int(y1), int(x2), int(y2)],
                         "severity": severity
                     })
-        elif self.florence_model:
-            try:
-                pil_image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-                text_input = "scratch. crack. dent. broken glass. bent frame. camera damage. screen burn. dead pixels. paint loss. water damage."
-                inputs = self.florence_processor(images=pil_image, text=text_input, return_tensors="pt").to(self.dino_device)
-                import torch
-                with torch.no_grad():
-                    outputs = self.florence_model(**inputs)
-                results = self.florence_processor.post_process_grounded_object_detection(
-                    outputs, inputs.input_ids, box_threshold=0.2, text_threshold=0.2, target_sizes=[pil_image.size[::-1]]
-                )[0]
+        else:
+            self._load_grounding_dino()
+            if self.florence_model:
+                try:
+                    pil_image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+                    text_input = "scratch. crack. dent. broken glass. bent frame. camera damage. screen burn. dead pixels. paint loss. water damage."
+                    inputs = self.florence_processor(images=pil_image, text=text_input, return_tensors="pt").to(self.dino_device)
+                    import torch
+                    with torch.no_grad():
+                        outputs = self.florence_model(**inputs)
+                    results = self.florence_processor.post_process_grounded_object_detection(
+                        outputs, inputs.input_ids, box_threshold=0.2, text_threshold=0.2, target_sizes=[pil_image.size[::-1]]
+                    )[0]
                 
-                labels = results.get("text_labels", results.get("labels", []))
-                for score, label, box in zip(results["scores"], labels, results["boxes"]):
-                    # Normalize DINO confidence to YOLO range (0.5-1.0) for consistency
-                    raw_conf = float(score.item())
-                    scaled_conf = min(raw_conf + 0.5, 1.0)
-                    severity = "High" if scaled_conf > 0.8 else "Medium" if scaled_conf > 0.5 else "Low"
-                    detections.append({
-                        "class": str(label),
-                        "confidence": scaled_conf,
-                        "bounding_box": [int(b) for b in box.tolist()],
-                        "severity": severity
-                    })
-            except Exception as e:
-                logger.error(f"Damage detection failed: {e}")
+                    labels = results.get("text_labels", results.get("labels", []))
+                    for score, label, box in zip(results["scores"], labels, results["boxes"]):
+                        # Normalize DINO confidence to YOLO range (0.5-1.0) for consistency
+                        raw_conf = float(score.item())
+                        scaled_conf = min(raw_conf + 0.5, 1.0)
+                        severity = "High" if scaled_conf > 0.8 else "Medium" if scaled_conf > 0.5 else "Low"
+                        detections.append({
+                            "class": str(label),
+                            "confidence": scaled_conf,
+                            "bounding_box": [int(b) for b in box.tolist()],
+                            "severity": severity
+                        })
+                except Exception as e:
+                    logger.error(f"Damage detection failed: {e}")
         return detections
 
     # Stage 5: Quality Validation
@@ -488,6 +509,7 @@ class VisionService:
                 from app.services.damage_detection_service import DamageDetectionEngine
                 damage_engine = DamageDetectionEngine()
                 
+                self._load_component_detector()
                 if self.comp_detector:
                     comp_results = await asyncio.to_thread(self.comp_detector.predict, payload["image_data"], angle)
                 else:
