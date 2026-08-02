@@ -35,6 +35,18 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting %s API", settings.PROJECT_NAME)
     
+    # Run database migrations automatically on startup
+    try:
+        import subprocess
+        logger.info("Running database migrations via subprocess...")
+        # Run alembic upgrade head
+        result = subprocess.run(["alembic", "upgrade", "head"], capture_output=True, text=True, check=True)
+        logger.info(f"Database migrations completed successfully: {result.stdout}")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to run database migrations on startup. Return code: {e.returncode}\nStdout: {e.stdout}\nStderr: {e.stderr}")
+    except Exception as e:
+        logger.error(f"Failed to run database migrations on startup: {e}")
+    
     # Verify Supabase bucket configuration
     try:
         from app.services.storage_service import SupabaseStorageService
