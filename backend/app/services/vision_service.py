@@ -9,6 +9,8 @@ import imagehash
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 from app.services.grounding_dino_loader import get_grounding_dino
+from ultralytics import YOLO
+from app.services.grounding_dino_component_detector import GroundingDinoComponentDetector
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +57,8 @@ class VisionService:
             self.yolo_model = YOLO(self.custom_weights_path)
             logger.info("YOLO model loaded successfully")
             self._yolo_loaded = True
+        except Exception:
+            logger.exception("Failed to load YOLO model")
 
     def _load_component_detector(self):
         if self._comp_detector_loaded:
@@ -64,6 +68,8 @@ class VisionService:
             self.comp_detector = GroundingDinoComponentDetector()
             logger.info("Component detector loaded successfully")
             self._comp_detector_loaded = True
+        except Exception:
+            logger.exception("Failed to load component detector")
         
     async def download_image_with_hash(self, url: str) -> tuple[np.ndarray, str]:
         async with httpx.AsyncClient() as client:
