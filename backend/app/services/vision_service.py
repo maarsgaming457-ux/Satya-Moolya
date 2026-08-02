@@ -50,27 +50,21 @@ class VisionService:
     def _load_yolo(self):
         if self._yolo_loaded:
             return
-        if os.path.exists(self.custom_weights_path):
-            try:
-                from ultralytics import YOLO
-                self.yolo_model = YOLO(self.custom_weights_path)
-                logger.info(f"Loaded custom YOLO model from {self.custom_weights_path}")
-            except Exception as e:
-                logger.error(f"Failed to load custom YOLO model: {e}")
-        else:
-            logger.info("Custom damage YOLO weights not found; using Grounding DINO for damage prompts.")
-        self._yolo_loaded = True
+
+        try:
+            self.yolo_model = YOLO(self.custom_weights_path)
+            logger.info("YOLO model loaded successfully")
+            self._yolo_loaded = True
 
     def _load_component_detector(self):
         if self._comp_detector_loaded:
             return
-        try:
-            from app.services.component_detection_service import GroundingDinoComponentDetector
-            self.comp_detector = GroundingDinoComponentDetector()
-        except Exception as e:
-            logger.error(f"Failed to load GroundingDinoComponentDetector: {e}")
-        self._comp_detector_loaded = True
 
+        try:
+            self.comp_detector = GroundingDinoComponentDetector()
+            logger.info("Component detector loaded successfully")
+            self._comp_detector_loaded = True
+        
     async def download_image_with_hash(self, url: str) -> tuple[np.ndarray, str]:
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
