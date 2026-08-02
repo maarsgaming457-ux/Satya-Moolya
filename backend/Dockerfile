@@ -19,5 +19,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["uv", "run", "gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8080", "--threads", "4"]
-
+CMD ["uv", "run", "gunicorn", "app.main:app", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8080"]
