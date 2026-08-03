@@ -2,31 +2,39 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 
 import { getAccessToken, logout } from "@/utils/auth"
 import { handleApiError } from "@/utils/api-errors"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+const REQUEST_TIMEOUT = 10000; // 10 seconds
 
-if (!API_BASE_URL) {
-  throw new Error("NEXT_PUBLIC_API_URL is not defined");
-}
+const getApiBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL;
 
-const REQUEST_TIMEOUT = 10000 // 10 seconds
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  }
+
+  return url;
+};
 
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
   timeout: REQUEST_TIMEOUT,
   headers: {
     "Content-Type": "application/json",
-    "Accept": "application/json"
-  }
-})
+    "Accept": "application/json",
+  },
+});
 
 // Request Interceptor: Automatically attach the JWT token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = getAccessToken()
+    // Set the base URL dynamically for every request
+    config.baseURL = getApiBaseUrl();
+
+    const token = getAccessToken();
+
     if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
+
+    return config;
   },
   (error) => {
     return Promise.reject(error)
