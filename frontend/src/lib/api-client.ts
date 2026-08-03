@@ -2,7 +2,12 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 
 import { getAccessToken, logout } from "@/utils/auth"
 import { handleApiError } from "@/utils/api-errors"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/v1"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+
+if (!API_BASE_URL) {
+  throw new Error("NEXT_PUBLIC_API_URL is not defined");
+}
+
 const REQUEST_TIMEOUT = 10000 // 10 seconds
 
 export const apiClient: AxiosInstance = axios.create({
