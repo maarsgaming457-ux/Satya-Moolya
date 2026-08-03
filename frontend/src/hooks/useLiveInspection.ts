@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+const getApiUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (!url) throw new Error("NEXT_PUBLIC_API_URL not defined");
+  return url;
+};
+
 interface BoundingBox {
     class: string;
     confidence: number;
@@ -36,8 +42,7 @@ export const useLiveInspection = (deviceId: string) => {
         
         setStatus('connecting');
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL
-        if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL not defined");
+        const apiUrl = getApiUrl();
         const wsUrl = `${apiUrl.replace('http', 'ws')}/live-inspection/${deviceId}`;
         
         console.log("=== WEBSOCKET DEBUG ===");

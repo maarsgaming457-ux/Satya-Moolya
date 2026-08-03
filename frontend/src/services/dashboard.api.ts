@@ -8,16 +8,22 @@ import {
   Notification
 } from "@/types/dashboard";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL not defined");
+const getApiUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (!url) throw new Error("NEXT_PUBLIC_API_URL not defined");
+  return `${url}/dashboard`;
+};
 
 const dashboardClient = axios.create({
-  baseURL: `${API_URL}/dashboard`,
   headers: {
     "Content-Type": "application/json",
   },
   // In a real app, an interceptor injects the Bearer token here.
+});
+
+dashboardClient.interceptors.request.use((config) => {
+  config.baseURL = getApiUrl();
+  return config;
 });
 
 export const dashboardApi = {
