@@ -8,21 +8,15 @@ import {
 } from "@/lib/validations/auth.schema";
 import { User } from "@/types/api";
 
-const getApiUrl = () => {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url) throw new Error("NEXT_PUBLIC_API_URL not defined");
-  return `${url}/auth`;
-};
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL not defined");
 
 const authClient = axios.create({
+  baseURL: `${API_URL}/auth`,
   headers: {
     "Content-Type": "application/json",
   },
-});
-
-authClient.interceptors.request.use((config) => {
-  config.baseURL = getApiUrl();
-  return config;
 });
 
 export interface AuthResponse {
